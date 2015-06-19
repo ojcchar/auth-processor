@@ -31,7 +31,7 @@ public class GitUtilitiesTest {
 			+ projectName2 + "_log.txt";
 	private static String logFilePath2 = baseFolder + "logs" + File.separator
 			+ "log-" + projectName2 + ".txt";
-	private static final String tag = "release-3.0.0";
+	private static final String tag = "release-3.4.5";
 	private static File clonedProject;
 	private static File clonedProject0;
 
@@ -47,6 +47,10 @@ public class GitUtilitiesTest {
 		}
 		if (clonedProject0 != null && clonedProject0.exists()) {
 			FileUtils.deleteDirectory(clonedProject0);
+		}
+		File file = new File(logFilePath);
+		if (file.exists()) {
+			file.delete();
 		}
 	}
 
@@ -89,15 +93,21 @@ public class GitUtilitiesTest {
 		File file = new File(logFilePath);
 		int resp = GitUtilities.saveLogFromGitRepository(
 				file.getAbsolutePath(),
-				new File(
-				repositoryPath).getAbsolutePath());
+				new File(repositoryPath).getAbsolutePath(), tag);
 		assertTrue(resp == 0);
 
 		assertTrue(file.exists());
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
-		if (br.readLine() == null) {
+		String line = br.readLine();
+		if (line == null) {
 			fail("The log file is empty");
+		}else{
+			assertEquals(
+					"<commit-id>26e8dd6</commit-id><author-email>mahadev@apache.org</author-email>"
+							+ "<author-date>2012-11-19 00:18:54 +0000</author-date><committer-email>mahadev@apache.org</committer-email>"
+							+ "<committer-date>2012-11-19 00:18:54 +0000</committer-date><message>ZooKeeper 3.4.5 release.</message>",
+					line);
 		}
 		br.close();
 

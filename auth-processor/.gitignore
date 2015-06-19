@@ -1,1 +1,11 @@
+.classpath
+.eclipse/
+.project
+.revision/
+.settings/
+build/
+src/c/generated/
+src/java/generated/
+src/java/lib/ant-eclipse-*
+src/java/lib/ivy-*
 /target/

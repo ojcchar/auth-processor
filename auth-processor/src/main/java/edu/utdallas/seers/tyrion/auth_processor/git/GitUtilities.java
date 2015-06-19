@@ -56,7 +56,8 @@ public class GitUtilities {
 		// permissions to the created file)
 		Runtime rt = Runtime.getRuntime();
 		String cmd = GIT_COMMAND + " --git-dir \"" + repositoryPath
-				+ File.separator + ".git\" checkout " + tag + " --force";
+				+ File.separator + ".git\" --work-tree " + repositoryPath
+				+ " checkout " + tag;
 		Process process = rt.exec(cmd);
 
 		String line = null;
@@ -79,11 +80,13 @@ public class GitUtilities {
 	}
 
 	public static int saveLogFromGitRepository(String logFilePath,
-			String repositoryPath) throws IOException, InterruptedException {
+			String repositoryPath, String tagName) throws IOException,
+			InterruptedException {
 
 		// [START] Make the file executable (i.e., adds execution
 		// permissions to the created file)
 		Runtime rt = Runtime.getRuntime();
+		String tag = tagName == null ? "HEAD" : tagName;
 		String cmd = GIT_COMMAND
 				+ " --git-dir \""
 				+ repositoryPath
@@ -92,7 +95,7 @@ public class GitUtilities {
 				+ " log --first-parent --name-status --date=iso --stat HEAD --pretty=format:\"<commit-id>%h</commit-id>"
 				+ "<author-email>%ae</author-email><author-date>%ad</author-date>"
 				+ "<committer-email>%ce</committer-email><committer-date>%cd</committer-date>"
-				+ "<message>%s</message>\" ";
+				+ "<message>%s</message>\" " + tag;
 		Process process = rt.exec(cmd);
 
 		String line = null;

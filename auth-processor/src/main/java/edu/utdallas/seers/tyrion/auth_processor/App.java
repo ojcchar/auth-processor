@@ -1,6 +1,7 @@
 package edu.utdallas.seers.tyrion.auth_processor;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
 
@@ -24,17 +25,21 @@ public class App {
 		String[] sourceSubFolders;
 		String projectName;
 		String projectVersion;
+		String tag;
 		try {
 			repositoryAddress = args[0];
 			destinationFolder = args[1];
 			projectName = args[2];
 			sourceSubFolders = args[3].split(";");
 			projectVersion = args[4];
+			tag = args[5];
 		} catch (Exception e1) {
 			LOGGER.error("Arguments error");
-			LOGGER.info("Arguments: [git_repo_url] [base_folder] [project_name] [comma_separated_source_folders] [project_version]");
+			LOGGER.info("Arguments: [git_repo_url] [base_folder] [project_name] [comma_separated_source_folders] [project_version] [git_tag]");
 			return;
 		}
+
+		System.out.println("args: " + Arrays.toString(args));
 
 		try {
 			String projectFolder = destinationFolder + File.separator
@@ -48,7 +53,11 @@ public class App {
 			GitUtilities.cloneGitRepository(repositoryAddress, projectFolder);
 
 			LOGGER.info("Getting log from repository");
-			GitUtilities.saveLogFromGitRepository(logFilePath, projectFolder);
+			GitUtilities.saveLogFromGitRepository(logFilePath, projectFolder,
+					tag);
+
+			LOGGER.info("Checking out tag");
+			GitUtilities.checkoutToTag(projectFolder, tag);
 
 			LOGGER.info("Reading log");
 			Vector<CommitBean> commits = GitUtilities.readCommits(logFilePath);

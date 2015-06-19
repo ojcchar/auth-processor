@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -32,14 +31,14 @@ public class AppTest {
 		String baseFolder = "test_folder";
 		String projectName = "zookeeper";
 		String projectVersion = "10x";
+		String tag = "release-3.4.5";
 		String[] args = {
 				"https://github.com/apache/zookeeper.git",
 				baseFolder,
 				projectName,
 				"src" + File.separator + "java" + File.separator + "main;src"
 						+ File.separator + "java" + File.separator + "test",
-				projectVersion };
-		System.out.println(Arrays.toString(args));
+				projectVersion, tag };
 		App.main(args);
 
 		// ----------------------------------------------------
@@ -48,8 +47,9 @@ public class AppTest {
 		File fileAuthor = new File(projectFolder + File.separator + projectName
 				+ "-" + projectVersion + "_Authorship.txt");
 		BufferedReader br = new BufferedReader(new FileReader(fileAuthor));
-		if (br.readLine() == null) {
-			fail("The authorship file is empty");
+		String line = br.readLine();
+		if (line == null) {
+			fail("The log file is empty");
 		}
 		br.close();
 
