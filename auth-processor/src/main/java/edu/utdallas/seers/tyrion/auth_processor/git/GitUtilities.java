@@ -96,6 +96,7 @@ public class GitUtilities {
 				+ "<author-email>%ae</author-email><author-date>%ad</author-date>"
 				+ "<committer-email>%ce</committer-email><committer-date>%cd</committer-date>"
 				+ "<message>%s</message>\" " + tag;
+		LOGGER.debug(cmd);
 		Process process = rt.exec(cmd);
 
 		String line = null;
@@ -181,10 +182,13 @@ public class GitUtilities {
 		Vector<String> addedFiles = null;
 		Vector<String> deletedFiles = null;
 
+		boolean hasData = false;
 		// [START] read the log file line by line
 		while ((line = br.readLine()) != null) {
 
+
 			if (line.startsWith("<commit-id>")) {
+				hasData = true;
 				// if line starts with <commit-id> this means that I have to
 				// store the previous commit (if this is not the first commit
 				// in the log file) and create a new commit by setting its
@@ -207,8 +211,10 @@ public class GitUtilities {
 
 				// set the commitId
 				Matcher matcherCommitId = commitIdPattern.matcher(line);
-				if (matcherCommitId.find())
-					commitToAdd.setCommitId(matcherCommitId.group(1));
+				if (matcherCommitId.find()) {
+					String commitId = matcherCommitId.group(1);
+					commitToAdd.setCommitId(commitId);
+				}
 
 				// set the author email
 				Matcher matcherAuthorEmail = authorEmailPattern.matcher(line);
@@ -241,14 +247,17 @@ public class GitUtilities {
 					commitToAdd.setCommitMessage(matcherMessage.group(1));
 
 			} else if (line.startsWith("A")) {
+				hasData = true;
 				// this file has been added in the commit
 				tokens = spaces.split(line);
 				addedFiles.add(tokens[1]);
 			} else if (line.startsWith("D")) {
+				hasData = true;
 				// this file has been deleted in the commit
 				tokens = spaces.split(line);
 				deletedFiles.add(tokens[1]);
 			} else if (line.startsWith("M")) {
+				hasData = true;
 				// this file has been modified in the commit
 				tokens = spaces.split(line);
 				modifiedFiles.add(tokens[1]);
@@ -257,6 +266,10 @@ public class GitUtilities {
 		}
 		br.close();
 		// [END] read the log file line by line
+
+		if (!hasData) {
+			throw new RuntimeException("The log has no valid data!");
+		}
 
 		// I still need to add the last commit that I read
 		commitToAdd.setModifiedFiles(modifiedFiles);

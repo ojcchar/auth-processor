@@ -8,13 +8,17 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorContribution;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipExtractor;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipWritter;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
 
 public class App {
+
+	public static final String AUTHOR_HISTORY_TXT = "_Authorship_History.txt";
+	public static final String AUTHOR_FIRST_TXT = "_Authorship_First.txt";
+	public static final String AUTHOR_JAVADOC_TXT = "_Authorship_Javadoc.txt";
 
 	private static Logger LOGGER = LoggerFactory.getLogger(App.class);
 
@@ -41,13 +45,22 @@ public class App {
 
 		System.out.println("args: " + Arrays.toString(args));
 
+		if ("null".equalsIgnoreCase(tag)) {
+			tag = null;
+		}
+
 		try {
 			String projectFolder = destinationFolder + File.separator
 					+ projectName;
 			String logFilePath = projectFolder + File.separator + projectName
 					+ "-" + projectVersion + ".log";
-			String outfilePath = projectFolder + File.separator + projectName
-					+ "-" + projectVersion + "_Authorship.txt";
+			String[] outfilePaths = {
+					projectFolder + File.separator + projectName + "-"
+							+ projectVersion + AUTHOR_HISTORY_TXT,
+					projectFolder + File.separator + projectName + "-"
+							+ projectVersion + AUTHOR_FIRST_TXT,
+					projectFolder + File.separator + projectName + "-"
+							+ projectVersion + AUTHOR_JAVADOC_TXT };
 
 			LOGGER.info("Cloning repository");
 			GitUtilities.cloneGitRepository(repositoryAddress, projectFolder);
@@ -66,14 +79,16 @@ public class App {
 			AuthorshipExtractor extractor = new AuthorshipExtractor(
 					projectFolder, sourceSubFolders,
 					new String[] { projectFolder });
-			Map<String, Map<String, AuthorContribution>> contributions = extractor
+			Map<String, AuthorInfo> authorInfo = extractor
 					.getClassAuthorContributions(commits);
 
 			LOGGER.info("Writing contributions");
 			AuthorshipWritter writer = new AuthorshipWritter();
-			File file = writer.writeAuthorship(contributions, outfilePath);
+			File[] files = writer.writeAuthorInfo(authorInfo, outfilePaths);
 
-			LOGGER.info("Info written in " + file.getAbsolutePath());
+			for (File file : files) {
+				LOGGER.info("Info written in " + file.getAbsolutePath());
+			}
 			LOGGER.info("Done!");
 
 		} catch (Exception e) {

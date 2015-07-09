@@ -29,7 +29,12 @@ public class AuthorshipExtractor {
 	private String[] sourceFolders;
 	private String[] classPaths;
 
-	private HashMap<String, String> subFoldPref = new HashMap<String, String>();
+	private HashMap<String, String> subFoldPrefixes = new HashMap<String, String>();
+	// file --> [class1, class2, ...]
+	private Map<String, List<String>> filesClasses = new HashMap<String, List<String>>();
+
+	// class --> [author1, author2, ...]
+	private Map<String, List<String>> javadocClassAuthors = new HashMap<String, List<String>>();
 
 	public AuthorshipExtractor(String projectFolder, String[] sourceSubFolders,
 			String[] classPaths) {
@@ -43,7 +48,8 @@ public class AuthorshipExtractor {
 
 			String subF = sourceSubFolders[i].replaceAll("/", "\\"
 					+ File.separator);
-			subFoldPref.put(subF, subF.replaceAll("\\" + File.separator, "."));
+			subFoldPrefixes.put(subF,
+					subF.replaceAll("\\" + File.separator, "."));
 
 			encodings[i] = "UTF-8";
 			this.sourceFolders[i] = projectFolder + File.separator
@@ -54,10 +60,13 @@ public class AuthorshipExtractor {
 		this.projectFolder = projectFolder;
 	}
 
-	public Map<String, Map<String, AuthorContribution>> getClassAuthorContributions(
+	public Map<String, AuthorInfo> getClassAuthorContributions(
 			Vector<CommitBean> history) throws IOException {
 
+		// class --> { author --> contribution }
 		Map<String, Map<String, AuthorContribution>> clAuthContr = new HashMap<String, Map<String, AuthorContribution>>();
+		// class --> [first-commit]
+		Map<String, CommitBean> classFirstCommit = new HashMap<String, CommitBean>();
 
 		for (CommitBean commitBean : history) {
 
@@ -73,6 +82,7 @@ public class AuthorshipExtractor {
 					continue;
 				}
 
+				// author contributions
 				Map<String, AuthorContribution> authors = clAuthContr.get(cl);
 				if (authors == null) {
 					authors = new HashMap<String, AuthorContribution>();
@@ -86,10 +96,16 @@ public class AuthorshipExtractor {
 				contr.addNumMod();
 
 				clAuthContr.put(cl, authors);
+
+				// first commit
+				setFirstCommit(classFirstCommit, cl, commitBean);
+
 			}
 
 		}
 
+		
+		//compute the contributions
 		Set<Entry<String, Map<String, AuthorContribution>>> clAuthContrSet = clAuthContr
 				.entrySet();
 		for (Entry<String, Map<String, AuthorContribution>> entry : clAuthContrSet) {
@@ -106,11 +122,34 @@ public class AuthorshipExtractor {
 				entry2.getValue().setPercMod(percMod);
 			}
 		}
+		
+		///----------------------
+		Map<String, AuthorInfo> authorInfo = new HashMap<String, AuthorInfo>();
+		
+		clAuthContrSet = clAuthContr
+				.entrySet();
+		for (Entry<String, Map<String, AuthorContribution>> entry : clAuthContrSet) {
+			String cl = entry.getKey();
+			AuthorInfo info = new AuthorInfo(entry.getValue(),
+					classFirstCommit.get(cl), javadocClassAuthors.get(cl));
+			authorInfo.put(cl, info);
+		}
+		
 
-		return clAuthContr;
+		return authorInfo;
 	}
 
-	Map<String, List<String>> classesCache = new HashMap<String, List<String>>();
+	private void setFirstCommit(Map<String, CommitBean> classFirstCommit,
+			String cl, CommitBean commitBean) {
+		CommitBean commitBean2 = classFirstCommit.get(cl);
+		if (commitBean2 == null) {
+			commitBean2 = commitBean;
+		}
+		if (commitBean.getDate().before(commitBean2.getDate())) {
+			commitBean2 = commitBean;
+		}
+		classFirstCommit.put(cl, commitBean2);
+	}
 
 	private List<String> getClasses(CommitBean commitBean) throws IOException {
 		List<String> cls = getClassesFromFiles(commitBean.getModifiedFiles());
@@ -139,7 +178,7 @@ public class AuthorshipExtractor {
 				continue;
 			}
 
-			List<String> classes = classesCache.get(file.getAbsolutePath());
+			List<String> classes = filesClasses.get(file.getAbsolutePath());
 			if (classes == null) {
 				// System.out.println(file.getAbsolutePath());
 
@@ -167,7 +206,13 @@ public class AuthorshipExtractor {
 				cu.accept(vis);
 				classes = vis.getClasses();
 
-				classesCache.put(file.getAbsolutePath(), classes);
+				// java doc authors
+				Map<String, List<String>> classesAuthors = vis
+						.getClassesAuthors();
+				javadocClassAuthors.putAll(classesAuthors);
+
+				// files and classes per file
+				filesClasses.put(file.getAbsolutePath(), classes);
 
 			}
 			cls.addAll(classes);
@@ -177,7 +222,7 @@ public class AuthorshipExtractor {
 	}
 
 	private String getSubFoldPref(String fileStr) {
-		Set<Entry<String, String>> entrySet = subFoldPref.entrySet();
+		Set<Entry<String, String>> entrySet = subFoldPrefixes.entrySet();
 
 		fileStr = fileStr.replaceAll("/", "\\" + File.separator);
 

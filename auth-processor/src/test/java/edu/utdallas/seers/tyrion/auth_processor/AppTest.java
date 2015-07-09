@@ -15,6 +15,8 @@ import org.junit.Test;
 
 public class AppTest {
 
+	private static String projectFolder;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -22,6 +24,11 @@ public class AppTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 
+		// ----------------------------------------------------
+
+		File clonedProject = new File(projectFolder);
+		FileUtils.deleteDirectory(clonedProject);
+		clonedProject.mkdir();
 	}
 
 	@Test
@@ -43,20 +50,31 @@ public class AppTest {
 
 		// ----------------------------------------------------
 
-		String projectFolder = baseFolder + File.separator + projectName;
-		File fileAuthor = new File(projectFolder + File.separator + projectName
-				+ "-" + projectVersion + "_Authorship.txt");
-		BufferedReader br = new BufferedReader(new FileReader(fileAuthor));
-		String line = br.readLine();
-		if (line == null) {
-			fail("The log file is empty");
+		projectFolder = baseFolder + File.separator + projectName;
+		String[] outFiles = {
+				projectFolder + File.separator + projectName + "-"
+						+ projectVersion + App.AUTHOR_FIRST_TXT,
+				projectFolder + File.separator + projectName + "-"
+						+ projectVersion + App.AUTHOR_HISTORY_TXT,
+				projectFolder + File.separator + projectName + "-"
+						+ projectVersion + App.AUTHOR_JAVADOC_TXT };
+		for (String outFile : outFiles) {
+
+			File fileAuthor = new File(outFile);
+
+			System.out.println(fileAuthor);
+
+			BufferedReader br = new BufferedReader(new FileReader(fileAuthor));
+			String line = br.readLine();
+			if (line == null) {
+				fail("The log file is empty");
+			}
+			br.close();
+
+			fileAuthor.delete();
+			assertTrue(!fileAuthor.exists());
 		}
-		br.close();
 
-		// ----------------------------------------------------
-
-		fileAuthor.delete();
-		assertTrue(!fileAuthor.exists());
 
 		// ----------------------------------------------------
 
@@ -65,13 +83,6 @@ public class AppTest {
 		file.delete();
 		assertTrue(!file.exists());
 
-		// ----------------------------------------------------
-
-		File clonedProject = new File(projectFolder);
-		FileUtils.deleteDirectory(clonedProject);
-		assertTrue(!clonedProject.exists());
-		clonedProject.mkdir();
-		assertTrue(clonedProject.exists());
 
 	}
 }
