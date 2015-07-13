@@ -95,4 +95,30 @@ public class CommitBean {
 				+ committerDate + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((commitId == null) ? 0 : commitId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CommitBean other = (CommitBean) obj;
+		if (commitId == null) {
+			if (other.commitId != null)
+				return false;
+		} else if (!commitId.equals(other.commitId))
+			return false;
+		return true;
+	}
+
 }

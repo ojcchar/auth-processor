@@ -3,14 +3,16 @@ package edu.utdallas.seers.tyrion.auth_processor.authorship;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.FirstCommitContrib;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 
-public class AuthorshipWritter {
+public class AuthorshipWriter {
 
 	private static final String SEMI = ";";
 
@@ -38,7 +40,7 @@ public class AuthorshipWritter {
 		for (Entry<String, AuthorInfo> classAuthor : authorSet) {
 
 			Set<Entry<String, AuthorContribution>> authoInfo = classAuthor
-					.getValue().getContribution().entrySet();
+					.getValue().getHistoryContrib().entrySet();
 
 			StringBuffer str = new StringBuffer(classAuthor.getKey() + SEMI);
 			for (Entry<String, AuthorContribution> entry2 : authoInfo) {
@@ -61,10 +63,16 @@ public class AuthorshipWritter {
 
 		for (Entry<String, AuthorInfo> classAuthor : authorSet) {
 
-			CommitBean firstCommit = classAuthor.getValue().getFirstCommit();
+			FirstCommitContrib firstCommit = classAuthor.getValue()
+					.getFirstCommit();
+
+			CommitBean commitBean = firstCommit
+					.getCommit();
 
 			StringBuffer str = new StringBuffer(classAuthor.getKey() + SEMI);
-			str.append(firstCommit.getAuthor() + SEMI + "0" + SEMI + "0");
+			str.append(commitBean.getAuthor() + SEMI
+					+ firstCommit.getContrib().getNumMod() + SEMI
+					+ firstCommit.getContrib().getPercMod());
 
 			str.append("\n");
 			writer.write(str.toString());
@@ -78,15 +86,20 @@ public class AuthorshipWritter {
 
 		for (Entry<String, AuthorInfo> classAuthor : authorSet) {
 
-			List<String> jDocAuthors = classAuthor.getValue()
+			Map<String, AuthorContribution> jDocAuthors = classAuthor
+					.getValue()
 					.getJavaDocAuthors();
+			Set<Entry<String, AuthorContribution>> entrySet = jDocAuthors
+					.entrySet();
 
 			StringBuffer str = new StringBuffer(classAuthor.getKey() + SEMI);
-			for (String auth : jDocAuthors) {
-				str.append(auth + SEMI + "0" + SEMI + "0" + SEMI);
+			for (Entry<String, AuthorContribution> auth : entrySet) {
+				str.append(auth.getKey().toLowerCase() + SEMI
+						+ auth.getValue().getNumMod()
+						+ SEMI + auth.getValue().getPercMod() + SEMI);
 			}
 			if (jDocAuthors.isEmpty()) {
-				str.append("NO_AUTHOR" + SEMI + "0" + SEMI + "0" + SEMI);
+				str.append("NO_AUTHOR" + SEMI + "1" + SEMI + "1.0" + SEMI);
 			}
 			str.delete(str.length() - 1, str.length());
 			str.append("\n");

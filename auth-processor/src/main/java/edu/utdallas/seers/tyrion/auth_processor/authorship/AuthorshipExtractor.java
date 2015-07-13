@@ -18,6 +18,9 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.FirstCommitContrib;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 
 public class AuthorshipExtractor {
@@ -104,8 +107,7 @@ public class AuthorshipExtractor {
 
 		}
 
-		
-		//compute the contributions
+		// compute the contributions
 		Set<Entry<String, Map<String, AuthorContribution>>> clAuthContrSet = clAuthContr
 				.entrySet();
 		for (Entry<String, Map<String, AuthorContribution>> entry : clAuthContrSet) {
@@ -122,19 +124,40 @@ public class AuthorshipExtractor {
 				entry2.getValue().setPercMod(percMod);
 			}
 		}
-		
-		///----------------------
+
+		// /----------------------
 		Map<String, AuthorInfo> authorInfo = new HashMap<String, AuthorInfo>();
-		
-		clAuthContrSet = clAuthContr
-				.entrySet();
+
+		clAuthContrSet = clAuthContr.entrySet();
 		for (Entry<String, Map<String, AuthorContribution>> entry : clAuthContrSet) {
 			String cl = entry.getKey();
-			AuthorInfo info = new AuthorInfo(entry.getValue(),
-					classFirstCommit.get(cl), javadocClassAuthors.get(cl));
+			Map<String, AuthorContribution> authContrbs = entry.getValue();
+
+			// -----------------------------------
+			CommitBean commitBean = classFirstCommit.get(cl);
+			AuthorContribution contrib = authContrbs
+					.get(commitBean.getAuthor());
+
+			FirstCommitContrib fistComContrib = new FirstCommitContrib(
+					commitBean,
+					new AuthorContribution(contrib.getNumMod(), 1.0));
+
+			// -------------------------------------
+
+			List<String> jAuthors = javadocClassAuthors.get(cl);
+
+			Map<String, AuthorContribution> jDocAuthors = new HashMap<String, AuthorContribution>();
+			for (String jAuth : jAuthors) {
+				jDocAuthors.put(jAuth,
+						new AuthorContribution(1, 1.0 / jAuthors.size()));
+			}
+
+			// -------------------------------------
+
+			AuthorInfo info = new AuthorInfo(entry.getValue(), fistComContrib,
+					jDocAuthors);
 			authorInfo.put(cl, info);
 		}
-		
 
 		return authorInfo;
 	}

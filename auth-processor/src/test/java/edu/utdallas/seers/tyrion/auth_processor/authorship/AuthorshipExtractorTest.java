@@ -1,12 +1,11 @@
 package edu.utdallas.seers.tyrion.auth_processor.authorship;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,6 +15,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
 
@@ -62,9 +63,10 @@ public class AuthorshipExtractorTest {
 		String javadocAuthors[] = {};
 		int contrib[] = { 3, 3, 21, 6, 22, 13, 6, 2 };
 		int total = 76;
+		int contribFirstCommit = contrib[2];
 
 		assertClass(authorInfo, clName, authors, contrib, total, firstCommitId,
-				javadocAuthors);
+				javadocAuthors, contribFirstCommit);
 
 		clName = "src.java.main.org.apache.zookeeper.server.NettyServerCnxn";
 		authors = new String[] { "camille@apache.org", "henry@apache.org",
@@ -73,9 +75,10 @@ public class AuthorshipExtractorTest {
 		firstCommitId = "ed69746";
 		contrib = new int[] { 4, 1, 3, 3, 3, 1, 1 };
 		total = 16;
+		contribFirstCommit = contrib[2];
 
 		assertClass(authorInfo, clName, authors, contrib, total, firstCommitId,
-				javadocAuthors);
+				javadocAuthors, contribFirstCommit);
 
 		clName = "src.java.systest.org.apache.zookeeper.test.system.GenerateLoad$GeneratorInstance$ZooKeeperThread";
 		authors = new String[] { "phunt@apache.org", "michim@apache.org",
@@ -83,9 +86,10 @@ public class AuthorshipExtractorTest {
 		firstCommitId = "f58e18b";
 		contrib = new int[] { 1, 2, 2, 1, 1 };
 		total = 7;
+		contribFirstCommit = contrib[2];
 
 		assertClass(authorInfo, clName, authors, contrib, total, firstCommitId,
-				javadocAuthors);
+				javadocAuthors, contribFirstCommit);
 
 		clName = "src.contrib.zooinspector.src.java.org.apache.zookeeper.inspector.gui.ZooInspectorTreeViewer$ZooInspectorTreeCellRenderer";
 		authors = new String[] { "phunt@apache.org", "michim@apache.org" };
@@ -93,19 +97,20 @@ public class AuthorshipExtractorTest {
 		javadocAuthors = new String[] { "Colin" };
 		contrib = new int[] { 2, 1 };
 		total = 3;
+		contribFirstCommit = contrib[0];
 
 		assertClass(authorInfo, clName, authors, contrib, total, firstCommitId,
-				javadocAuthors);
+				javadocAuthors, contribFirstCommit);
 
 	}
 
 	private void assertClass(Map<String, AuthorInfo> authorInfo, String clName,
 			String[] authors, int[] contrib, int total, String firstCommitId,
-			String[] javadocAuthors) {
+			String[] javadocAuthors, int contribFirstCommit) {
 		System.out.println("Checking class [" + clName + "]");
 
 		Map<String, AuthorContribution> clContr = authorInfo.get(clName)
-				.getContribution();
+				.getHistoryContrib();
 		Set<Entry<String, AuthorContribution>> entrySet = clContr.entrySet();
 
 		assertEquals(authors.length, entrySet.size());
@@ -128,19 +133,33 @@ public class AuthorshipExtractorTest {
 
 		// ---------------------------------------------------------
 
-		String commitId = authorInfo.get(clName).getFirstCommit().getCommitId();
+		String commitId = authorInfo.get(clName).getFirstCommit().getCommit()
+				.getCommitId();
 		assertEquals(firstCommitId, commitId);
+
+		AuthorContribution contrib2 = authorInfo.get(clName).getFirstCommit()
+				.getContrib();
+		assertEquals(contribFirstCommit, contrib2.getNumMod());
+		assertEquals(1.0, contrib2.getPercMod(), 0.0);
 
 		// ---------------------------------------------------------
 
-		List<String> javaDocAuthors2 = authorInfo.get(clName)
+		Map<String, AuthorContribution> javaDocAuthors2 = authorInfo
+				.get(clName)
 				.getJavaDocAuthors();
 
 		assertEquals(javadocAuthors.length, javaDocAuthors2.size());
 		for (int i = 0; i < javadocAuthors.length; i++) {
 			String auth = javadocAuthors[i];
+
 			System.out.println("checking javadoc auth: [" + auth + "]");
-			assertTrue(javaDocAuthors2.contains(auth));
+			AuthorContribution jDocContrib = javaDocAuthors2.get(auth);
+			assertNotNull(jDocContrib);
+
+			assertEquals(1, jDocContrib.getNumMod());
+			assertEquals(1.0 / javaDocAuthors2.size(),
+					jDocContrib.getPercMod(), 0.0);
 		}
+
 	}
 }

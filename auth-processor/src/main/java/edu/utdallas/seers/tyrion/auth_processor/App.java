@@ -8,9 +8,9 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipExtractor;
-import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipWritter;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipWriter;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
 
@@ -83,7 +83,7 @@ public class App {
 					.getClassAuthorContributions(commits);
 
 			LOGGER.info("Writing contributions");
-			AuthorshipWritter writer = new AuthorshipWritter();
+			AuthorshipWriter writer = new AuthorshipWriter();
 			File[] files = writer.writeAuthorInfo(authorInfo, outfilePaths);
 
 			for (File file : files) {

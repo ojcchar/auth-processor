@@ -17,10 +17,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.utdallas.seers.tyrion.auth_processor.App;
+import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
 import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
 
-public class AuthorshipWritterTest {
+public class AuthorshipWriterTest {
 
 	private static String baseFolder = "test_folder" + File.separator;
 	private static String projectName2 = "zookeeper2";
@@ -52,7 +53,7 @@ public class AuthorshipWritterTest {
 				projectFolder, sourceSubFolders, classPaths)
 				.getClassAuthorContributions(commits);
 
-		AuthorshipWritter writter = new AuthorshipWritter();
+		AuthorshipWriter writter = new AuthorshipWriter();
 		String[] outfilePaths = {
 				baseFolder + File.separator + projectName3 + "-"
 						+ App.AUTHOR_HISTORY_TXT,
@@ -68,11 +69,11 @@ public class AuthorshipWritterTest {
 		assertFile(file, lineExpected, expNumLines);
 
 		file = files[1];
-		lineExpected = "src.java.main.org.apache.zookeeper.Watcher$Event$KeeperState;phunt@apache.org;0;0";
+		lineExpected = "src.java.main.org.apache.zookeeper.Watcher$Event$KeeperState;phunt@apache.org;8;1.0";
 		assertFile(file, lineExpected, expNumLines);
 
 		file = files[2];
-		lineExpected = "src.java.main.org.apache.zookeeper.OpResult;author1;0;0";
+		lineExpected = "src.java.main.org.apache.zookeeper.OpResult;author1;1;1.0";
 		assertFile(file, lineExpected, expNumLines);
 	}
 
