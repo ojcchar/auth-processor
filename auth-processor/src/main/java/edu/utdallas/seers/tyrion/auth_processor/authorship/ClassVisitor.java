@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -41,6 +42,13 @@ public class ClassVisitor extends ASTVisitor {
 		return super.visit(node);
 	}
 
+	@Override
+	public boolean visit(AnnotationTypeDeclaration node) {
+
+		addQualfName(node);
+		return super.visit(node);
+	}
+
 	private void addQualfName(AbstractTypeDeclaration node) {
 
 		ITypeBinding resolveBinding = node.resolveBinding();
@@ -49,8 +57,7 @@ public class ClassVisitor extends ASTVisitor {
 
 		// check for the names
 		if (qualifiedName == null || qualifiedName.isEmpty()) {
-			LOGGER.error("The qual. name is null or empty, class " + className
-					+ ", file: " + file);
+			LOGGER.error("The qual. name is null or empty, class " + className + ", file: " + file);
 			return;
 		}
 
@@ -58,18 +65,14 @@ public class ClassVisitor extends ASTVisitor {
 		if (outterCl != null) {
 			int indexOf = qualifiedName.indexOf(outterCl);
 			if (indexOf != -1) {
-				String substring = qualifiedName.substring(
-						indexOf + outterCl.length(), qualifiedName.length());
+				String substring = qualifiedName.substring(indexOf + outterCl.length(), qualifiedName.length());
 				substring = substring.replaceAll("\\.", "\\$");
-				qualifiedName = qualifiedName.substring(0,
-						indexOf + outterCl.length())
-						+ substring;
+				qualifiedName = qualifiedName.substring(0, indexOf + outterCl.length()) + substring;
 			}
 		}
 
 		List<String> listAuthors = getListAuthors(node);
-		classesAuthors.put(prefix + (prefix.isEmpty() ? "" : ".")
-				+ qualifiedName, listAuthors);
+		classesAuthors.put(prefix + (prefix.isEmpty() ? "" : ".") + qualifiedName, listAuthors);
 
 		if (outterCl == null) {
 			outterCl = qualifiedName;
@@ -89,8 +92,7 @@ public class ClassVisitor extends ASTVisitor {
 		List<TagElement> tagEls = javadoc.tags();
 
 		for (TagElement tagElement : tagEls) {
-			if (tagElement.getTagName() == null
-					|| !"@author".equalsIgnoreCase(tagElement.getTagName())) {
+			if (tagElement.getTagName() == null || !"@author".equalsIgnoreCase(tagElement.getTagName())) {
 				continue;
 			}
 

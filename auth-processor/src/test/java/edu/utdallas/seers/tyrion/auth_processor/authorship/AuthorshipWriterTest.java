@@ -26,10 +26,8 @@ public class AuthorshipWriterTest {
 	private static String baseFolder = "test_folder" + File.separator;
 	private static String projectName2 = "zookeeper2";
 	private static String projectName3 = "zookeeper3";
-	private static String logFilePath2 = baseFolder + "logs" + File.separator
-			+ "log-" + projectName2 + ".txt";
-	private static String projectFolder = baseFolder + "cloning"
-			+ File.separator + projectName3;
+	private static String logFilePath2 = baseFolder + "logs" + File.separator + "log-" + projectName2 + ".txt";
+	private static String projectFolder = baseFolder + "cloning" + File.separator + projectName3;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -44,23 +42,17 @@ public class AuthorshipWriterTest {
 
 		Vector<CommitBean> commits = GitUtilities.readCommits(logFilePath2);
 
-		String[] sourceSubFolders = new String[] { "src" + File.separator
-				+ "java" + File.separator + "main" };
+		String[] sourceSubFolders = new String[] { "src" + File.separator + "java" + File.separator + "main" };
 
 		String[] classPaths = null;
 
-		Map<String, AuthorInfo> authorInfo = new AuthorshipExtractor(
-				projectFolder, sourceSubFolders, classPaths)
+		Map<String, AuthorInfo> authorInfo = new AuthorshipExtractor(projectFolder, sourceSubFolders, classPaths)
 				.getClassAuthorContributions(commits);
 
 		AuthorshipWriter writter = new AuthorshipWriter();
-		String[] outfilePaths = {
-				baseFolder + File.separator + projectName3 + "-"
-						+ App.AUTHOR_HISTORY_TXT,
-				baseFolder + File.separator + projectName3 + "-"
-						+ App.AUTHOR_FIRST_TXT,
-				baseFolder + File.separator + projectName3 + "-"
-						+ App.AUTHOR_JAVADOC_TXT };
+		String[] outfilePaths = { baseFolder + File.separator + projectName3 + "-" + App.AUTHOR_HISTORY_TXT,
+				baseFolder + File.separator + projectName3 + "-" + App.AUTHOR_FIRST_TXT,
+				baseFolder + File.separator + projectName3 + "-" + App.AUTHOR_JAVADOC_TXT };
 		File[] files = writter.writeAuthorInfo(authorInfo, outfilePaths);
 
 		File file = files[0];
@@ -77,8 +69,7 @@ public class AuthorshipWriterTest {
 		assertFile(file, lineExpected, expNumLines);
 	}
 
-	private void assertFile(File file, String lineExpected,
-			Integer expectNumLines)
+	private void assertFile(File file, String lineExpected, Integer expectNumLines)
 			throws FileNotFoundException, IOException {
 		assertTrue(file.exists());
 
