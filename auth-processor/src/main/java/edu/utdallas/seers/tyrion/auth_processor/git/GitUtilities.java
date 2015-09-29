@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class GitUtilities {
 
 	private static final String GIT_COMMAND = "git";
+	private static final long timeout = 300000;// 5 mins
 	private static Logger LOGGER = LoggerFactory.getLogger(GitUtilities.class);
 
 	public static int cloneGitRepository(String repositoryAddress, String destinationFolder)
@@ -42,8 +43,40 @@ public class GitUtilities {
 		}
 		stderrReader.close();
 
-		process.waitFor();
-		return process.exitValue();
+		// -------------------
+
+		Worker worker = new Worker(process);
+		worker.start();
+		try {
+			worker.join(timeout);
+			if (worker.exit != null)
+				return worker.exit;
+			else
+				return 1;
+		} catch (InterruptedException ex) {
+			worker.interrupt();
+			throw ex;
+		} finally {
+			process.destroy();
+		}
+
+	}
+
+	private static class Worker extends Thread {
+		private final Process process;
+		private Integer exit;
+
+		private Worker(Process process) {
+			this.process = process;
+		}
+
+		public void run() {
+			try {
+				exit = process.waitFor();
+			} catch (InterruptedException ignore) {
+				return;
+			}
+		}
 	}
 
 	public static int checkoutToTag(String repositoryPath, String tag) throws IOException, InterruptedException {
