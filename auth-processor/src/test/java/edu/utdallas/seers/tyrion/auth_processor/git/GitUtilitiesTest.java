@@ -22,15 +22,11 @@ public class GitUtilitiesTest {
 	private static String projectName = "zookeeper";
 	private static String projectName0 = "zookeeper0";
 	private static String repositoryAddress = "https://github.com/apache/zookeeper.git";
-	private static String destinationFolder = baseFolder + "cloning"
-			+ File.separator + projectName;
-	private static String destinationFolder0 = baseFolder + "cloning"
-			+ File.separator + projectName0;
-	private static String projectName2 = "zookeeper2";
-	private static String logFilePath = baseFolder + "logs" + File.separator
-			+ projectName2 + "_log.txt";
-	private static String logFilePath2 = baseFolder + "logs" + File.separator
-			+ "log-" + projectName2 + ".txt";
+	private static String destinationFolder = baseFolder + "cloning" + File.separator + projectName;
+	private static String destinationFolder0 = baseFolder + "cloning" + File.separator + projectName0;
+	private static String projectName2 = "zookeeper4";
+	private static String logFilePath = baseFolder + "logs" + File.separator + projectName2 + "_log.txt";
+	private static String logFilePath2 = baseFolder + "logs" + File.separator + "log-" + projectName2 + ".txt";
 	private static final String tag = "release-3.4.5";
 	private static File clonedProject;
 	private static File clonedProject0;
@@ -54,13 +50,10 @@ public class GitUtilitiesTest {
 		}
 	}
 
-
 	@Test
-	public void testCloneGitRepository() throws IOException,
-			InterruptedException {
+	public void testCloneGitRepository() throws IOException, InterruptedException {
 
-		int resp = GitUtilities.cloneGitRepository(repositoryAddress,
-				destinationFolder);
+		int resp = GitUtilities.cloneGitRepository(repositoryAddress, destinationFolder);
 
 		clonedProject = new File(destinationFolder);
 		assertTrue(resp == 0);
@@ -68,11 +61,9 @@ public class GitUtilitiesTest {
 	}
 
 	@Test
-	public void testCheckoutToTag() throws IOException,
-			InterruptedException {
+	public void testCheckoutToTag() throws IOException, InterruptedException {
 
-		int resp = GitUtilities.cloneGitRepository(repositoryAddress,
-				destinationFolder0);
+		int resp = GitUtilities.cloneGitRepository(repositoryAddress, destinationFolder0);
 
 		clonedProject0 = new File(destinationFolder0);
 		assertTrue(resp == 0);
@@ -85,14 +76,11 @@ public class GitUtilitiesTest {
 	}
 
 	@Test
-	public void testGetLogFromGitRepository() throws IOException,
-			InterruptedException {
+	public void testGetLogFromGitRepository() throws IOException, InterruptedException {
 
-		String repositoryPath = baseFolder + "cloning" + File.separator
-				+ projectName2;
+		String repositoryPath = baseFolder + "cloning" + File.separator + projectName2;
 		File file = new File(logFilePath);
-		int resp = GitUtilities.saveLogFromGitRepository(
-				file.getAbsolutePath(),
+		int resp = GitUtilities.saveLogFromGitRepository(file.getAbsolutePath(),
 				new File(repositoryPath).getAbsolutePath(), tag);
 		assertTrue(resp == 0);
 
@@ -102,7 +90,7 @@ public class GitUtilitiesTest {
 		String line = br.readLine();
 		if (line == null) {
 			fail("The log file is empty");
-		}else{
+		} else {
 			assertEquals(
 					"<commit-id>26e8dd6</commit-id><author-email>mahadev@apache.org</author-email>"
 							+ "<author-date>2012-11-19 00:18:54 +0000</author-date><committer-email>mahadev@apache.org</committer-email>"
@@ -117,8 +105,7 @@ public class GitUtilitiesTest {
 	}
 
 	@Test
-	public void testReadCommits() throws IOException, InterruptedException,
-			ParseException {
+	public void testReadCommits() throws IOException, InterruptedException, ParseException {
 
 		Vector<CommitBean> commits = GitUtilities.readCommits(logFilePath2);
 

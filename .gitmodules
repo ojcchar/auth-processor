@@ -1,0 +1,3 @@
+[submodule "auth-processor/test_folder/cloning/zookeeper4"]
+	path = auth-processor/test_folder/cloning/zookeeper4
+	url = https://github.com/apache/zookeeper.git

@@ -40,11 +40,8 @@ public class AppTest {
 		String projectVersion = "10x";
 		String tag = "release-3.4.5";
 		String[] args = {
-				"https://github.com/apache/zookeeper.git",
-				baseFolder,
-				projectName,
-				"src" + File.separator + "java" + File.separator + "main;src"
-						+ File.separator + "java" + File.separator + "test",
+				"https://github.com/apache/zookeeper.git", baseFolder, projectName, "src" + File.separator + "java"
+						+ File.separator + "main;src" + File.separator + "java" + File.separator + "test",
 				projectVersion, tag };
 		App.main(args);
 
@@ -52,12 +49,9 @@ public class AppTest {
 
 		projectFolder = baseFolder + File.separator + projectName;
 		String[] outFiles = {
-				projectFolder + File.separator + projectName + "-"
-						+ projectVersion + App.AUTHOR_FIRST_TXT,
-				projectFolder + File.separator + projectName + "-"
-						+ projectVersion + App.AUTHOR_HISTORY_TXT,
-				projectFolder + File.separator + projectName + "-"
-						+ projectVersion + App.AUTHOR_JAVADOC_TXT };
+				projectFolder + File.separator + projectName + "-" + projectVersion + App.AUTHOR_FIRST_TXT,
+				projectFolder + File.separator + projectName + "-" + projectVersion + App.AUTHOR_HISTORY_TXT,
+				projectFolder + File.separator + projectName + "-" + projectVersion + App.AUTHOR_JAVADOC_TXT };
 		for (String outFile : outFiles) {
 
 			File fileAuthor = new File(outFile);
@@ -75,14 +69,11 @@ public class AppTest {
 			assertTrue(!fileAuthor.exists());
 		}
 
-
 		// ----------------------------------------------------
 
-		File file = new File(projectFolder + File.separator + projectName + "-"
-				+ projectVersion + ".log");
+		File file = new File(projectFolder + File.separator + projectName + "-" + projectVersion + ".log");
 		file.delete();
 		assertTrue(!file.exists());
-
 
 	}
 }

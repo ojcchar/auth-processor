@@ -22,24 +22,21 @@ public class GitUtilities {
 	private static final String GIT_COMMAND = "git";
 	private static Logger LOGGER = LoggerFactory.getLogger(GitUtilities.class);
 
-	public static int cloneGitRepository(String repositoryAddress,
-			String destinationFolder) throws IOException, InterruptedException {
+	public static int cloneGitRepository(String repositoryAddress, String destinationFolder)
+			throws IOException, InterruptedException {
 
 		Runtime rt = Runtime.getRuntime();
-		String cmd = GIT_COMMAND + " clone " + repositoryAddress + " "
-				+ destinationFolder;
+		String cmd = GIT_COMMAND + " clone " + repositoryAddress + " " + destinationFolder;
 		Process process = rt.exec(cmd);
 
 		String line = null;
-		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(
-				process.getInputStream()));
+		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 		while ((line = stdoutReader.readLine()) != null) {
 			LOGGER.info(line);
 		}
 		stdoutReader.close();
 
-		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(
-				process.getErrorStream()));
+		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 		while ((line = stderrReader.readLine()) != null) {
 			LOGGER.info(line);
 		}
@@ -48,77 +45,106 @@ public class GitUtilities {
 		process.waitFor();
 		return process.exitValue();
 	}
-	
-	public static int checkoutToTag(String repositoryPath, String tag)
+
+	public static int checkoutToTag(String repositoryPath, String tag) throws IOException, InterruptedException {
+
+		// [START] Make the file executable (i.e., adds execution
+		// permissions to the created file)
+		Runtime rt = Runtime.getRuntime();
+		String cmd = GIT_COMMAND + " --git-dir \"" + repositoryPath + File.separator + ".git\" --work-tree "
+				+ repositoryPath + " checkout " + tag;
+		Process process = rt.exec(cmd);
+
+		String line = null;
+		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		while ((line = stdoutReader.readLine()) != null) {
+			LOGGER.info(line);
+		}
+		stdoutReader.close();
+
+		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+		while ((line = stderrReader.readLine()) != null) {
+			LOGGER.info(line);
+		}
+		stderrReader.close();
+
+		process.waitFor();
+		return process.exitValue();
+	}
+
+	public static int saveLogFromGitRepository(String logFilePath, String repositoryPath, String tagName)
 			throws IOException, InterruptedException {
 
 		// [START] Make the file executable (i.e., adds execution
 		// permissions to the created file)
-		Runtime rt = Runtime.getRuntime();
-		String cmd = GIT_COMMAND + " --git-dir \"" + repositoryPath
-				+ File.separator + ".git\" --work-tree " + repositoryPath
-				+ " checkout " + tag;
-		Process process = rt.exec(cmd);
-
-		String line = null;
-		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(
-				process.getInputStream()));
-		while ((line = stdoutReader.readLine()) != null) {
-			LOGGER.info(line);
-		}
-		stdoutReader.close();
-
-		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(
-				process.getErrorStream()));
-		while ((line = stderrReader.readLine()) != null) {
-			LOGGER.info(line);
-		}
-		stderrReader.close();
-
-		process.waitFor();
-		return process.exitValue();
-	}
-
-	public static int saveLogFromGitRepository(String logFilePath,
-			String repositoryPath, String tagName) throws IOException,
-			InterruptedException {
-
-		// [START] Make the file executable (i.e., adds execution
-		// permissions to the created file)
-		Runtime rt = Runtime.getRuntime();
 		String tag = tagName == null ? "HEAD" : tagName;
-		String cmd = GIT_COMMAND
-				+ " --git-dir \""
-				+ repositoryPath
-				+ File.separator
-				+ ".git\""
-				+ " log --first-parent --name-status --date=iso --stat HEAD --pretty=format:\"<commit-id>%h</commit-id>"
-				+ "<author-email>%ae</author-email><author-date>%ad</author-date>"
-				+ "<committer-email>%ce</committer-email><committer-date>%cd</committer-date>"
-				+ "<message>%s</message>\" " + tag;
+		// String arguments = " --git-dir \"" + repositoryPath + File.separator
+		// + ".git\""
+		// + " log --first-parent --name-status --date=iso --stat HEAD
+		// --pretty=format:\"<commit-id>%h</commit-id>"
+		// + "<author-email>%ae</author-email><author-date>%ad</author-date>"
+		// +
+		// "<committer-email>%ce</committer-email><committer-date>%cd</committer-date>"
+		// + "<message>%s</message>\" " + tag;
+		// String cmd = GIT_COMMAND + arguments;
+		String arguments = " " + "--git-dir" + " \"" + repositoryPath + File.separator + ".git\"" + " " + "log" + " "
+				+ "--first-parent" + " -" + "-name-status" + " " + "--date=iso" + " " + "--stat" + " " + "HEAD" + " "
+				+ "--pretty=format:\"<commit-id>%h</commit-id><author-email>%ae</author-email><author-date>%ad</author-date><committer-email>%ce</committer-email><committer-date>%cd</committer-date><message>%s</message>\""
+				+ " " + tag;
+		String cmd = GIT_COMMAND + arguments;
 		LOGGER.debug(cmd);
-		Process process = rt.exec(cmd);
+
+		// Runtime rt = Runtime.getRuntime();
+		// Process process = rt.exec(cmd);
+
+		// ----
+		ProcessBuilder builder = new ProcessBuilder(GIT_COMMAND,
+				// "--git-dir", repositoryPath + File.separator + ".git",
+				"log", "--first-parent", "--name-status", "--date=iso", "--stat", "HEAD",
+				"--pretty=format:\"<commit-id>%h</commit-id><author-email>%ae</author-email><author-date>%ad</author-date><committer-email>%ce</committer-email><committer-date>%cd</committer-date><message>%s</message>\"",
+				tag);
+		LOGGER.debug(builder.command().toString());
+		builder.redirectErrorStream(true);
+		File absoluteFile = new File(repositoryPath).getAbsoluteFile();
+		builder.directory(absoluteFile);
+		builder.redirectErrorStream(true);
+		Process process = builder.start();
+
+		// ------------
+
+		// Scanner s = new Scanner(process.getInputStream());
+		// StringBuilder text = new StringBuilder();
+		// while (s.hasNextLine()) {
+		// text.append(s.nextLine());
+		// text.append("\n");
+		// }
+		// s.close();
+		//
+		// int result = process.waitFor();
+		//
+		// System.out.printf("Process exited with result %d and output %s%n",
+		// result, text);
+		//
+		// return result;
+
+		// ---
 
 		String line = null;
 
-		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(
-				process.getInputStream()));
-		PrintStream printStream = new PrintStream(new FileOutputStream(
-				logFilePath));
+		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		PrintStream printStream = new PrintStream(new FileOutputStream(logFilePath));
 		while ((line = stdoutReader.readLine()) != null) {
 			printStream.append(line);
 			printStream.append("\n");
 		}
 		printStream.close();
 
-		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(
-				process.getErrorStream()));
+		BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 		while ((line = stderrReader.readLine()) != null) {
 			LOGGER.info(line);
 		}
 
-		process.waitFor();
-		return process.exitValue();
+		return process.waitFor();
 
 	}
 
@@ -131,40 +157,31 @@ public class GitUtilities {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	public static Vector<CommitBean> readCommits(String logFilePath)
-			throws IOException, ParseException {
+	public static Vector<CommitBean> readCommits(String logFilePath) throws IOException, ParseException {
 		Vector<CommitBean> result = new Vector<CommitBean>();
 
 		// [START] We prepare the regular expression needed to parse the log
 		// file
-		String commitIdRegex = Pattern.quote("<commit-id>")
-				+ Pattern.compile("(.*?)") + Pattern.quote("</commit-id>");
-		Pattern commitIdPattern = Pattern
-				.compile(commitIdRegex, Pattern.DOTALL);
+		String commitIdRegex = Pattern.quote("<commit-id>") + Pattern.compile("(.*?)") + Pattern.quote("</commit-id>");
+		Pattern commitIdPattern = Pattern.compile(commitIdRegex, Pattern.DOTALL);
 
-		String authorEmailRegex = Pattern.quote("<author-email>")
-				+ Pattern.compile("(.*?)") + Pattern.quote("</author-email>");
-		Pattern authorEmailPattern = Pattern.compile(authorEmailRegex,
-				Pattern.DOTALL);
+		String authorEmailRegex = Pattern.quote("<author-email>") + Pattern.compile("(.*?)")
+				+ Pattern.quote("</author-email>");
+		Pattern authorEmailPattern = Pattern.compile(authorEmailRegex, Pattern.DOTALL);
 
-		String authorDateRegex = Pattern.quote("<author-date>")
-				+ Pattern.compile("(.*?)") + Pattern.quote("</author-date>");
-		Pattern authorDatePattern = Pattern.compile(authorDateRegex,
-				Pattern.DOTALL);
+		String authorDateRegex = Pattern.quote("<author-date>") + Pattern.compile("(.*?)")
+				+ Pattern.quote("</author-date>");
+		Pattern authorDatePattern = Pattern.compile(authorDateRegex, Pattern.DOTALL);
 
-		String committerEmailRegex = Pattern.quote("<committer-email>")
-				+ Pattern.compile("(.*?)")
+		String committerEmailRegex = Pattern.quote("<committer-email>") + Pattern.compile("(.*?)")
 				+ Pattern.quote("</committer-email>");
-		Pattern committerEmailPattern = Pattern.compile(committerEmailRegex,
-				Pattern.DOTALL);
+		Pattern committerEmailPattern = Pattern.compile(committerEmailRegex, Pattern.DOTALL);
 
-		String committerDateRegex = Pattern.quote("<committer-date>")
-				+ Pattern.compile("(.*?)") + Pattern.quote("</committer-date>");
-		Pattern committerDatePattern = Pattern.compile(committerDateRegex,
-				Pattern.DOTALL);
+		String committerDateRegex = Pattern.quote("<committer-date>") + Pattern.compile("(.*?)")
+				+ Pattern.quote("</committer-date>");
+		Pattern committerDatePattern = Pattern.compile(committerDateRegex, Pattern.DOTALL);
 
-		String messageRegex = Pattern.quote("<message>")
-				+ Pattern.compile("(.*?)") + Pattern.quote("</message>");
+		String messageRegex = Pattern.quote("<message>") + Pattern.compile("(.*?)") + Pattern.quote("</message>");
 		Pattern messagePattern = Pattern.compile(messageRegex, Pattern.DOTALL);
 
 		Pattern spaces = Pattern.compile("\\s+");
@@ -185,7 +202,6 @@ public class GitUtilities {
 		boolean hasData = false;
 		// [START] read the log file line by line
 		while ((line = br.readLine()) != null) {
-
 
 			if (line.startsWith("<commit-id>")) {
 				hasData = true;
@@ -224,22 +240,17 @@ public class GitUtilities {
 				// set the date
 				Matcher matcherAuthorDate = authorDatePattern.matcher(line);
 				if (matcherAuthorDate.find())
-					commitToAdd.setDate(dateFormat.parse(matcherAuthorDate
-							.group(1)));
+					commitToAdd.setDate(dateFormat.parse(matcherAuthorDate.group(1)));
 
 				// set the author email
-				Matcher matcherCommitterEmail = committerEmailPattern
-						.matcher(line);
+				Matcher matcherCommitterEmail = committerEmailPattern.matcher(line);
 				if (matcherCommitterEmail.find())
-					commitToAdd.setCommitterEmail(matcherCommitterEmail
-							.group(1));
+					commitToAdd.setCommitterEmail(matcherCommitterEmail.group(1));
 
 				// set the date
-				Matcher matcherCommitterDate = committerDatePattern
-						.matcher(line);
+				Matcher matcherCommitterDate = committerDatePattern.matcher(line);
 				if (matcherCommitterDate.find())
-					commitToAdd.setCommitterDate(dateFormat
-							.parse(matcherCommitterDate.group(1)));
+					commitToAdd.setCommitterDate(dateFormat.parse(matcherCommitterDate.group(1)));
 
 				// set the commit message
 				Matcher matcherMessage = messagePattern.matcher(line);
