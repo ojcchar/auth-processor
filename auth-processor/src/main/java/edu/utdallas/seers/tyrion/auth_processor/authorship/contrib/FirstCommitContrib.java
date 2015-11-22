@@ -1,6 +1,6 @@
 package edu.utdallas.seers.tyrion.auth_processor.authorship.contrib;
 
-import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
+import seers.cvsanalyzer.git.CommitBean;
 
 public class FirstCommitContrib {
 

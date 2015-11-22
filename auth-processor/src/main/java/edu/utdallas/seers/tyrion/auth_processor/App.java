@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipExtractor;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.AuthorshipWriter;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
-import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
-import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
+import seers.cvsanalyzer.git.CommitBean;
+import seers.cvsanalyzer.git.GitUtilities;
 
 public class App {
 
@@ -39,7 +39,8 @@ public class App {
 			tag = args[5];
 		} catch (Exception e1) {
 			LOGGER.error("Arguments error");
-			LOGGER.info("Arguments: [git_repo_url] [base_folder] [project_name] [comma_separated_source_folders] [project_version] [git_tag]");
+			LOGGER.info(
+					"Arguments: [git_repo_url] [base_folder] [project_name] [comma_separated_source_folders] [project_version] [git_tag]");
 			return;
 		}
 
@@ -50,24 +51,18 @@ public class App {
 		}
 
 		try {
-			String projectFolder = destinationFolder + File.separator
-					+ projectName;
-			String logFilePath = projectFolder + File.separator + projectName
-					+ "-" + projectVersion + ".log";
+			String projectFolder = destinationFolder + File.separator + projectName;
+			String logFilePath = projectFolder + File.separator + projectName + "-" + projectVersion + ".log";
 			String[] outfilePaths = {
-					projectFolder + File.separator + projectName + "-"
-							+ projectVersion + AUTHOR_HISTORY_TXT,
-					projectFolder + File.separator + projectName + "-"
-							+ projectVersion + AUTHOR_FIRST_TXT,
-					projectFolder + File.separator + projectName + "-"
-							+ projectVersion + AUTHOR_JAVADOC_TXT };
+					projectFolder + File.separator + projectName + "-" + projectVersion + AUTHOR_HISTORY_TXT,
+					projectFolder + File.separator + projectName + "-" + projectVersion + AUTHOR_FIRST_TXT,
+					projectFolder + File.separator + projectName + "-" + projectVersion + AUTHOR_JAVADOC_TXT };
 
 			LOGGER.info("Cloning repository");
 			GitUtilities.cloneGitRepository(repositoryAddress, projectFolder);
 
 			LOGGER.info("Getting log from repository");
-			GitUtilities.saveLogFromGitRepository(logFilePath, projectFolder,
-					tag);
+			GitUtilities.saveLogFromGitRepository(logFilePath, projectFolder, tag);
 
 			LOGGER.info("Checking out tag");
 			GitUtilities.checkoutToTag(projectFolder, tag);
@@ -76,11 +71,9 @@ public class App {
 			Vector<CommitBean> commits = GitUtilities.readCommits(logFilePath);
 
 			LOGGER.info("Extracting the author contributions");
-			AuthorshipExtractor extractor = new AuthorshipExtractor(
-					projectFolder, sourceSubFolders,
+			AuthorshipExtractor extractor = new AuthorshipExtractor(projectFolder, sourceSubFolders,
 					new String[] { projectFolder });
-			Map<String, AuthorInfo> authorInfo = extractor
-					.getClassAuthorContributions(commits);
+			Map<String, AuthorInfo> authorInfo = extractor.getClassAuthorContributions(commits);
 
 			LOGGER.info("Writing contributions");
 			AuthorshipWriter writer = new AuthorshipWriter();

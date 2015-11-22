@@ -55,16 +55,6 @@
     	<artifactId>junit</artifactId>
     	<version>4.12</version>
     </dependency>
-    <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-api</artifactId>
-    	<version>1.7.12</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.slf4j</groupId>
-    	<artifactId>slf4j-log4j12</artifactId>
-    	<version>1.7.12</version>
-    </dependency>
     
     	<dependency>
       <groupId>org.eclipse</groupId>
@@ -164,5 +154,10 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/org.eclipse.text_3.5.300.v20130515-1451.jar</systemPath>
     </dependency>
+  	<dependency>
+  		<groupId>seers</groupId>
+  		<artifactId>cvs-analyzer</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
   </dependencies>
 </project>

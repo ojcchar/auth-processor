@@ -17,8 +17,8 @@ import org.junit.Test;
 
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
-import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
-import edu.utdallas.seers.tyrion.auth_processor.git.GitUtilities;
+import seers.cvsanalyzer.git.CommitBean;
+import seers.cvsanalyzer.git.GitUtilities;
 
 public class AuthorshipExtractorTest {
 	private static String baseFolder = "test_folder" + File.separator;

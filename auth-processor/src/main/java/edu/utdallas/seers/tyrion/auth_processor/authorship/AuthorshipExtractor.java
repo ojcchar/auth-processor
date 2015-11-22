@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.FirstCommitContrib;
-import edu.utdallas.seers.tyrion.auth_processor.git.CommitBean;
+import seers.cvsanalyzer.git.CommitBean;
 
 public class AuthorshipExtractor {
 
@@ -39,8 +39,7 @@ public class AuthorshipExtractor {
 	// class --> [author1, author2, ...]
 	private Map<String, List<String>> javadocClassAuthors = new HashMap<String, List<String>>();
 
-	public AuthorshipExtractor(String projectFolder, String[] sourceSubFolders,
-			String[] classPaths) {
+	public AuthorshipExtractor(String projectFolder, String[] sourceSubFolders, String[] classPaths) {
 		parser = ASTParser.newParser(AST.JLS8);
 		this.projectFolder = projectFolder;
 		this.sourceFolders = sourceSubFolders;
@@ -49,22 +48,18 @@ public class AuthorshipExtractor {
 		encodings = new String[sourceSubFolders.length];
 		for (int i = 0; i < sourceSubFolders.length; i++) {
 
-			String subF = sourceSubFolders[i].replaceAll("/", "\\"
-					+ File.separator);
-			subFoldPrefixes.put(subF,
-					subF.replaceAll("\\" + File.separator, "."));
+			String subF = sourceSubFolders[i].replaceAll("/", "\\" + File.separator);
+			subFoldPrefixes.put(subF, subF.replaceAll("\\" + File.separator, "."));
 
 			encodings[i] = "UTF-8";
-			this.sourceFolders[i] = projectFolder + File.separator
-					+ sourceFolders[i];
+			this.sourceFolders[i] = projectFolder + File.separator + sourceFolders[i];
 		}
 		// setParserConf();
 
 		this.projectFolder = projectFolder;
 	}
 
-	public Map<String, AuthorInfo> getClassAuthorContributions(
-			Vector<CommitBean> history) throws IOException {
+	public Map<String, AuthorInfo> getClassAuthorContributions(Vector<CommitBean> history) throws IOException {
 
 		// class --> { author --> contribution }
 		Map<String, Map<String, AuthorContribution>> clAuthContr = new HashMap<String, Map<String, AuthorContribution>>();
@@ -91,10 +86,10 @@ public class AuthorshipExtractor {
 					authors = new HashMap<String, AuthorContribution>();
 					clAuthContr.put(cl, authors);
 				}
-				AuthorContribution contr = authors.get(commitBean.getAuthor());
+				AuthorContribution contr = authors.get(commitBean.getAuthorEmail());
 				if (contr == null) {
 					contr = new AuthorContribution();
-					authors.put(commitBean.getAuthor(), contr);
+					authors.put(commitBean.getAuthorEmail(), contr);
 				}
 				contr.addNumMod();
 
@@ -108,19 +103,16 @@ public class AuthorshipExtractor {
 		}
 
 		// compute the contributions
-		Set<Entry<String, Map<String, AuthorContribution>>> clAuthContrSet = clAuthContr
-				.entrySet();
+		Set<Entry<String, Map<String, AuthorContribution>>> clAuthContrSet = clAuthContr.entrySet();
 		for (Entry<String, Map<String, AuthorContribution>> entry : clAuthContrSet) {
-			Set<Entry<String, AuthorContribution>> authContr = entry.getValue()
-					.entrySet();
+			Set<Entry<String, AuthorContribution>> authContr = entry.getValue().entrySet();
 			int totalCl = 0;
 			for (Entry<String, AuthorContribution> entry2 : authContr) {
 				totalCl += entry2.getValue().getNumMod();
 			}
 
 			for (Entry<String, AuthorContribution> entry2 : authContr) {
-				double percMod = ((double) entry2.getValue().getNumMod())
-						/ totalCl;
+				double percMod = ((double) entry2.getValue().getNumMod()) / totalCl;
 				entry2.getValue().setPercMod(percMod);
 			}
 		}
@@ -135,11 +127,9 @@ public class AuthorshipExtractor {
 
 			// -----------------------------------
 			CommitBean commitBean = classFirstCommit.get(cl);
-			AuthorContribution contrib = authContrbs
-					.get(commitBean.getAuthor());
+			AuthorContribution contrib = authContrbs.get(commitBean.getAuthorEmail());
 
-			FirstCommitContrib fistComContrib = new FirstCommitContrib(
-					commitBean,
+			FirstCommitContrib fistComContrib = new FirstCommitContrib(commitBean,
 					new AuthorContribution(contrib.getNumMod(), 1.0));
 
 			// -------------------------------------
@@ -148,22 +138,19 @@ public class AuthorshipExtractor {
 
 			Map<String, AuthorContribution> jDocAuthors = new HashMap<String, AuthorContribution>();
 			for (String jAuth : jAuthors) {
-				jDocAuthors.put(jAuth,
-						new AuthorContribution(1, 1.0 / jAuthors.size()));
+				jDocAuthors.put(jAuth, new AuthorContribution(1, 1.0 / jAuthors.size()));
 			}
 
 			// -------------------------------------
 
-			AuthorInfo info = new AuthorInfo(entry.getValue(), fistComContrib,
-					jDocAuthors);
+			AuthorInfo info = new AuthorInfo(entry.getValue(), fistComContrib, jDocAuthors);
 			authorInfo.put(cl, info);
 		}
 
 		return authorInfo;
 	}
 
-	private void setFirstCommit(Map<String, CommitBean> classFirstCommit,
-			String cl, CommitBean commitBean) {
+	private void setFirstCommit(Map<String, CommitBean> classFirstCommit, String cl, CommitBean commitBean) {
 		CommitBean commitBean2 = classFirstCommit.get(cl);
 		if (commitBean2 == null) {
 			commitBean2 = commitBean;
@@ -185,8 +172,7 @@ public class AuthorshipExtractor {
 		return cls;
 	}
 
-	private List<String> getClassesFromFiles(Vector<String> files)
-			throws IOException {
+	private List<String> getClassesFromFiles(Vector<String> files) throws IOException {
 		List<String> cls = new ArrayList<String>();
 
 		for (String fileStr : files) {
@@ -230,8 +216,7 @@ public class AuthorshipExtractor {
 				classes = vis.getClasses();
 
 				// java doc authors
-				Map<String, List<String>> classesAuthors = vis
-						.getClassesAuthors();
+				Map<String, List<String>> classesAuthors = vis.getClassesAuthors();
 				javadocClassAuthors.putAll(classesAuthors);
 
 				// files and classes per file
@@ -266,8 +251,7 @@ public class AuthorshipExtractor {
 		@SuppressWarnings("unchecked")
 		Map<String, String> options = JavaCore.getOptions();
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM,
-				JavaCore.VERSION_1_8);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
 

@@ -16,6 +16,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import seers.cvsanalyzer.git.CommitBean;
+import seers.cvsanalyzer.git.GitUtilities;
+
 public class GitUtilitiesTest {
 
 	private static String baseFolder = "test_folder" + File.separator;
