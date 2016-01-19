@@ -41,7 +41,7 @@ public class AppTest {
 		String tag = "release-3.4.5";
 		String[] args = {
 				"https://github.com/apache/zookeeper.git", baseFolder, projectName, "src" + File.separator + "java"
-						+ File.separator + "main;src" + File.separator + "java" + File.separator + "test",
+						+ File.separator + "main,src" + File.separator + "java" + File.separator + "test",
 				projectVersion, tag };
 		App.main(args);
 

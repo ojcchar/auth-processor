@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorContribution;
 import edu.utdallas.seers.tyrion.auth_processor.authorship.contrib.AuthorInfo;
@@ -19,6 +21,8 @@ import seers.codeparser.JavaCodeParser;
 import seers.cvsanalyzer.git.CommitBean;
 
 public class AuthorshipExtractor {
+
+	private static Logger LOGGER = LoggerFactory.getLogger(AuthorshipExtractor.class);
 
 	private String projectFolder;
 
@@ -169,6 +173,7 @@ public class AuthorshipExtractor {
 			File file = new File(projectFolder + File.separator + fileStr);
 
 			if (!file.exists()) {
+				// LOGGER.warn("File does not exist: " + file);
 				continue;
 			}
 

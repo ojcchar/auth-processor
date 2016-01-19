@@ -56,12 +56,12 @@ public class AuthorshipWriterTest {
 		File[] files = writter.writeAuthorInfo(authorInfo, outfilePaths);
 
 		File file = files[0];
-		String lineExpected = "src.java.main.org.apache.jute.XmlInputArchive$XmlIndex;phunt@apache.org;3;0.75;breed@apache.org;1;0.25";
+		String lineExpected = "src.java.main.org.apache.jute.XmlInputArchive.XmlIndex;phunt@apache.org;3;0.75;breed@apache.org;1;0.25";
 		Integer expNumLines = 16;
 		assertFile(file, lineExpected, expNumLines);
 
 		file = files[1];
-		lineExpected = "src.java.main.org.apache.zookeeper.Watcher$Event$KeeperState;phunt@apache.org;8;1.0";
+		lineExpected = "src.java.main.org.apache.zookeeper.Watcher.Event.KeeperState;phunt@apache.org;8;1.0";
 		assertFile(file, lineExpected, expNumLines);
 
 		file = files[2];

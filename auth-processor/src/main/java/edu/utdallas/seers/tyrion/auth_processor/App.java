@@ -34,7 +34,7 @@ public class App {
 			repositoryAddress = args[0];
 			destinationFolder = args[1];
 			projectName = args[2];
-			sourceSubFolders = args[3].split(";");
+			sourceSubFolders = args[3].split(",");
 			projectVersion = args[4];
 			tag = args[5];
 		} catch (Exception e1) {

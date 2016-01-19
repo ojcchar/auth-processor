@@ -119,4 +119,17 @@ public class GitUtilitiesTest {
 		assertEquals("7288576", commitBean.getCommitId());
 		assertEquals(2, commitBean.getModifiedFiles().size());
 	}
+
+	@Test
+	public void testReadCommits2() throws IOException, InterruptedException, ParseException {
+
+		Vector<CommitBean> commits = GitUtilities.readCommits(
+				"C:\\Users\\ojcch\\Documents\\Projects\\TYRION_local\\tyrion-experiments\\systems\\solr\\solr-4.4.0 - Copy.log");
+
+		// assertEquals(1349, commits.size());
+
+		CommitBean commitBean = commits.get(0);
+
+		System.out.println(commitBean);
+	}
 }

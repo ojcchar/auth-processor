@@ -62,14 +62,16 @@ public class ClassVisitor extends ASTVisitor {
 		}
 
 		// inner class
-		if (outterCl != null) {
-			int indexOf = qualifiedName.indexOf(outterCl);
-			if (indexOf != -1) {
-				String substring = qualifiedName.substring(indexOf + outterCl.length(), qualifiedName.length());
-				substring = substring.replaceAll("\\.", "\\$");
-				qualifiedName = qualifiedName.substring(0, indexOf + outterCl.length()) + substring;
-			}
-		}
+		// if (outterCl != null) {
+		// int indexOf = qualifiedName.indexOf(outterCl);
+		// if (indexOf != -1) {
+		// String substring = qualifiedName.substring(indexOf +
+		// outterCl.length(), qualifiedName.length());
+		// substring = substring.replaceAll("\\.", "\\$");
+		// qualifiedName = qualifiedName.substring(0, indexOf +
+		// outterCl.length()) + substring;
+		// }
+		// }
 
 		List<String> listAuthors = getListAuthors(node);
 		classesAuthors.put(prefix + (prefix.isEmpty() ? "" : ".") + qualifiedName, listAuthors);
